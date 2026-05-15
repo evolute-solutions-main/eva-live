@@ -1039,7 +1039,14 @@ app.post("/setup/api/console/run", requireSetupAuth, async (req, res) => {
     }
     if (cmd === "openclaw.logs.tail") {
       const lines = Math.max(50, Math.min(1000, Number.parseInt(arg || "200", 10) || 200));
-      const r = await runCmd(OPENCLAW_NODE, clawArgs(["logs", "--tail", String(lines)]));
+      // Try reading log file directly first (faster, no gateway RPC needed).
+      const logFile = `/tmp/openclaw/openclaw-${new Date().toISOString().slice(0, 10)}.log`;
+      try {
+        const { execSync } = await import("node:child_process");
+        const out = execSync(`tail -n ${lines} "${logFile}" 2>/dev/null || echo "(log file not found)"`, { encoding: "utf8" });
+        return res.json({ ok: true, output: redactSecrets(out) });
+      } catch {}
+      const r = await runCmd(OPENCLAW_NODE, clawArgs(["logs", String(lines)]));
       return res.status(r.code === 0 ? 200 : 500).json({ ok: r.code === 0, output: redactSecrets(r.output) });
     }
     if (cmd === "openclaw.config.get") {
