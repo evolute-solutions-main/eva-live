@@ -313,15 +313,14 @@ app.get("/setup/api/status", requireSetupAuth, async (_req, res) => {
   // We reuse Clawdbot's own auth-choice grouping logic indirectly by hardcoding the same group defs.
   // This is intentionally minimal; later we can parse the CLI help output to stay perfectly in sync.
   const authGroups = [
+    { value: "anthropic", label: "Anthropic", hint: "Claude Code CLI (OAuth)", options: [
+      { value: "claude-cli", label: "Anthropic token (Claude Code CLI)" },
+      { value: "token", label: "Anthropic token (paste setup-token)" }
+    ]},
     { value: "openai", label: "OpenAI", hint: "Codex OAuth + API key", options: [
       { value: "codex-cli", label: "OpenAI Codex OAuth (Codex CLI)" },
       { value: "openai-codex", label: "OpenAI Codex (ChatGPT OAuth)" },
       { value: "openai-api-key", label: "OpenAI API key" }
-    ]},
-    { value: "anthropic", label: "Anthropic", hint: "Claude Code CLI + API key", options: [
-      { value: "claude-cli", label: "Anthropic token (Claude Code CLI)" },
-      { value: "token", label: "Anthropic token (paste setup-token)" },
-      { value: "apiKey", label: "Anthropic API key" }
     ]},
     { value: "google", label: "Google", hint: "Gemini API key + OAuth", options: [
       { value: "gemini-api-key", label: "Google Gemini API key" },
@@ -399,7 +398,6 @@ function buildOnboardArgs(payload) {
     const secret = (payload.authSecret || "").trim();
     const map = {
       "openai-api-key": "--openai-api-key",
-      "apiKey": "--anthropic-api-key",
       "openrouter-api-key": "--openrouter-api-key",
       "ai-gateway-api-key": "--ai-gateway-api-key",
       "moonshot-api-key": "--moonshot-api-key",
