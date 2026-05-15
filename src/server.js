@@ -60,7 +60,14 @@ function clawArgs(args) {
 }
 
 function configPath() {
-  return process.env.CLAWDBOT_CONFIG_PATH?.trim() || path.join(STATE_DIR, "clawdbot.json");
+  if (process.env.CLAWDBOT_CONFIG_PATH?.trim()) return process.env.CLAWDBOT_CONFIG_PATH.trim();
+  // openclaw uses openclaw.json; older builds used clawdbot.json — check both.
+  const ocPath = path.join(STATE_DIR, "openclaw.json");
+  const cbPath = path.join(STATE_DIR, "clawdbot.json");
+  if (fs.existsSync(ocPath)) return ocPath;
+  if (fs.existsSync(cbPath)) return cbPath;
+  // Default to openclaw.json for new installs.
+  return ocPath;
 }
 
 function isConfigured() {
