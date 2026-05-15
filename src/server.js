@@ -602,6 +602,18 @@ app.post("/setup/api/fix", requireSetupAuth, async (_req, res) => {
   res.status(r.code === 0 ? 200 : 500).type("text/plain").send(r.output || "done");
 });
 
+app.post("/setup/api/config-set", requireSetupAuth, async (req, res) => {
+  const { key, value, json } = req.body || {};
+  if (!key || value === undefined) {
+    return res.status(400).json({ ok: false, error: "Missing key or value" });
+  }
+  const args = json
+    ? ["config", "set", "--json", key, typeof value === "string" ? value : JSON.stringify(value)]
+    : ["config", "set", key, String(value)];
+  const r = await runCmd(CLAWDBOT_NODE, clawArgs(args));
+  res.status(r.code === 0 ? 200 : 500).json({ ok: r.code === 0, output: r.output });
+});
+
 app.post("/setup/api/reset", requireSetupAuth, async (_req, res) => {
   // Minimal reset: delete the config file so /setup can rerun.
   // Keep credentials/sessions/workspace by default.
