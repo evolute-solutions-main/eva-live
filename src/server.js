@@ -463,6 +463,14 @@ app.post("/setup/api/run", requireSetupAuth, async (req, res) => {
     await runCmd(CLAWDBOT_NODE, clawArgs(["config", "set", "gateway.bind", "loopback"]));
     await runCmd(CLAWDBOT_NODE, clawArgs(["config", "set", "gateway.port", String(INTERNAL_GATEWAY_PORT)]));
 
+    // Auto-configure allowedOrigins from env var (comma-separated list of allowed origins).
+    // On Railway, set CLAWDBOT_ALLOWED_ORIGINS to your public URL, e.g. https://myapp.up.railway.app
+    const allowedOriginsEnv = process.env.CLAWDBOT_ALLOWED_ORIGINS?.trim();
+    if (allowedOriginsEnv) {
+      const origins = allowedOriginsEnv.split(",").map((o) => o.trim()).filter(Boolean);
+      await runCmd(CLAWDBOT_NODE, clawArgs(["config", "set", "--json", "gateway.controlUi.allowedOrigins", JSON.stringify(origins)]));
+    }
+
     const channelsHelp = await runCmd(CLAWDBOT_NODE, clawArgs(["channels", "add", "--help"]));
     const helpText = channelsHelp.output || "";
 
