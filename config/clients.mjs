@@ -16,6 +16,7 @@ const CLIENTS = {
   flh:         { name: 'Glenn Mullineaux', company: 'FLH Services 4 U',          locationId: 'ssJihQPta7Djw0AdYiE9', ghlApiKey: 'pit-e96707cc-cb51-44db-98bf-71e96e4f8120', channelId: '1503794804109348914' },
   kfir:        { name: 'Kfir Segev',     company: 'AZ Remodeling',               locationId: 'hwR58H8K1dZDBmXSY565', ghlApiKey: 'pit-5ac7d55b-e527-408c-8a0f-efef7a84a50c', channelId: null },
   aiello:      { name: 'Mike Aiello',    company: 'Prestige Home Remodeling',    locationId: 'a5mh9x9zOw1tjVXqg6jB', ghlApiKey: 'pit-b8f4510c-1ba9-4e06-8906-341d517d8551', channelId: '1504207421147713657' },
+  test:        { name: 'Test Client',     company: 'Innavik (Test)',               locationId: '04HqqnxN0bv41DCStgvw', ghlApiKey: 'pit-fc1ea8b3-89c8-4b7e-b04d-872bda93d84f', channelId: '1504376358023860265' },
 }
 
 /** Resolve a client by short name or Discord channel ID. Throws if not found. */
