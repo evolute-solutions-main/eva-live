@@ -541,6 +541,9 @@ app.post("/setup/api/run", requireSetupAuth, async (req, res) => {
       }
     }
 
+    // Auto-fix any config validation issues before starting.
+    await runCmd(CLAWDBOT_NODE, clawArgs(["doctor", "--fix"]));
+
     // Apply changes immediately.
     await restartGateway();
   }
