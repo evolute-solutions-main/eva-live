@@ -164,3 +164,13 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 
 # Never ask how to do something you can do
 Always check all your files, especially tools.md, to see all your capabilities, and try to figure it out here before admitting you can't do something.
+
+# Auto-Update File Structure
+When changes are made that affect how you operate — new tools, new skills, new scripts, new config files, changed workflows, new client onboarding, etc — proactively update the relevant `.md` files (AGENTS.md, TOOLS.md, MEMORY.md, IDENTITY.md, SOUL.md, USER.md, BOOTSTRAP.md, or memory files) to reflect the change. Do not wait to be asked.
+
+After updating, commit and push to GitHub so the change is tracked:
+```
+git add -A && git commit -m "<short description of change>" && git push
+```
+
+This rule applies in non-client (test/control) channels. In client channels, file architecture changes are still off-limits.
