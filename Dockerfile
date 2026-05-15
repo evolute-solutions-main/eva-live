@@ -33,7 +33,9 @@ RUN set -eux; \
     sed -i -E 's/"openclaw"[[:space:]]*:[[:space:]]*"workspace:[^"]+"/"openclaw": "*"/g' "$f"; \
   done
 
-RUN echo "resolution-mode=highest" >> .npmrc && pnpm install --no-frozen-lockfile
+ENV pnpm_config_resolution_mode=highest
+ENV pnpm_config_minimum_release_age=0
+RUN pnpm install --no-frozen-lockfile
 RUN pnpm build
 ENV OPENCLAW_PREFER_PNPM=1
 RUN pnpm ui:install && pnpm ui:build
