@@ -597,6 +597,15 @@ app.post("/setup/api/pairing/approve", requireSetupAuth, async (req, res) => {
   return res.status(r.code === 0 ? 200 : 500).json({ ok: r.code === 0, output: r.output });
 });
 
+app.post("/setup/api/restart-gateway", requireSetupAuth, async (_req, res) => {
+  try {
+    await restartGateway();
+    res.type("text/plain").send("Gateway restarted.");
+  } catch (err) {
+    res.status(500).type("text/plain").send(String(err));
+  }
+});
+
 app.post("/setup/api/fix", requireSetupAuth, async (_req, res) => {
   const r = await runCmd(CLAWDBOT_NODE, clawArgs(["doctor", "--fix"]));
   res.status(r.code === 0 ? 200 : 500).type("text/plain").send(r.output || "done");
