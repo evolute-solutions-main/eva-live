@@ -1084,6 +1084,58 @@ app.post("/setup/api/console/run", requireSetupAuth, async (req, res) => {
   }
 });
 
+// Write an Anthropic OAuth bearer token directly to auth-profiles.json without
+// needing the claude CLI binary. Creates/updates the anthropic:direct profile,
+// adds it first in auth order, and restarts the gateway.
+app.post("/setup/api/auth/set-token", requireSetupAuth, async (req, res) => {
+  try {
+    const { token, expiresAt } = req.body || {};
+    if (!token || typeof token !== "string" || !token.startsWith("sk-ant-")) {
+      return res.status(400).json({ ok: false, error: "Missing or invalid token (must start with sk-ant-)" });
+    }
+
+    const profilesPath = path.join(STATE_DIR, "agents", "main", "agent", "auth-profiles.json");
+    fs.mkdirSync(path.dirname(profilesPath), { recursive: true });
+
+    let profiles = { version: 1, profiles: {} };
+    try {
+      if (fs.existsSync(profilesPath)) {
+        profiles = JSON.parse(fs.readFileSync(profilesPath, "utf8"));
+      }
+    } catch {}
+
+    const exp = expiresAt || (Date.now() + 8 * 60 * 60 * 1000); // default 8h
+    profiles.profiles["anthropic:direct"] = {
+      type: "oauth",
+      provider: "anthropic",
+      access: token,
+      expires: exp,
+    };
+
+    fs.writeFileSync(profilesPath, JSON.stringify(profiles, null, 2));
+
+    // Update openclaw.json to add the profile and put it first in auth order.
+    const cfgPath = configPath();
+    if (fs.existsSync(cfgPath)) {
+      let cfg;
+      try { cfg = JSON.parse(fs.readFileSync(cfgPath, "utf8")); } catch { cfg = {}; }
+      cfg.auth = cfg.auth || {};
+      cfg.auth.profiles = cfg.auth.profiles || {};
+      cfg.auth.profiles["anthropic:direct"] = { provider: "anthropic", mode: "oauth" };
+      cfg.auth.order = cfg.auth.order || {};
+      const cur = cfg.auth.order.anthropic || [];
+      cfg.auth.order.anthropic = ["anthropic:direct", ...cur.filter(p => p !== "anthropic:direct")];
+      fs.writeFileSync(cfgPath, JSON.stringify(cfg, null, 2));
+    }
+
+    await restartGateway();
+    res.json({ ok: true, output: "Token registered as anthropic:direct and gateway restarted.\n" });
+  } catch (err) {
+    console.error("[set-token]", err);
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
+
 app.get("/setup/api/config/raw", requireSetupAuth, async (_req, res) => {
   try {
     const p = configPath();
