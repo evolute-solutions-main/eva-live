@@ -13,8 +13,13 @@ import * as tar from "tar";
 //
 // Prefer CLAWDBOT_PUBLIC_PORT (set in the Dockerfile / template) over PORT.
 const PORT = Number.parseInt(process.env.CLAWDBOT_PUBLIC_PORT ?? process.env.PORT ?? "8080", 10);
-const STATE_DIR = process.env.CLAWDBOT_STATE_DIR?.trim() || path.join(os.homedir(), ".clawdbot");
-const WORKSPACE_DIR = process.env.CLAWDBOT_WORKSPACE_DIR?.trim() || path.join(STATE_DIR, "workspace");
+// Support both OPENCLAW_* (current binary) and CLAWDBOT_* (legacy) env var names.
+const STATE_DIR = process.env.OPENCLAW_STATE_DIR?.trim()
+  || process.env.CLAWDBOT_STATE_DIR?.trim()
+  || path.join(os.homedir(), ".openclaw");
+const WORKSPACE_DIR = process.env.OPENCLAW_WORKSPACE_DIR?.trim()
+  || process.env.CLAWDBOT_WORKSPACE_DIR?.trim()
+  || path.join(STATE_DIR, "workspace");
 
 // Protect /setup with a user-provided password.
 const SETUP_PASSWORD = process.env.SETUP_PASSWORD?.trim();
@@ -22,7 +27,7 @@ const SETUP_PASSWORD = process.env.SETUP_PASSWORD?.trim();
 // Gateway admin token (protects Clawdbot gateway + Control UI).
 // Must be stable across restarts. If not provided via env, persist it in the state dir.
 function resolveGatewayToken() {
-  const envTok = process.env.CLAWDBOT_GATEWAY_TOKEN?.trim();
+  const envTok = (process.env.OPENCLAW_GATEWAY_TOKEN ?? process.env.CLAWDBOT_GATEWAY_TOKEN)?.trim();
   if (envTok) return envTok;
 
   const tokenPath = path.join(STATE_DIR, "gateway.token");
@@ -45,6 +50,7 @@ function resolveGatewayToken() {
 
 const CLAWDBOT_GATEWAY_TOKEN = resolveGatewayToken();
 process.env.CLAWDBOT_GATEWAY_TOKEN = CLAWDBOT_GATEWAY_TOKEN;
+process.env.OPENCLAW_GATEWAY_TOKEN = CLAWDBOT_GATEWAY_TOKEN;
 
 // Where the gateway will listen internally (we proxy to it).
 const INTERNAL_GATEWAY_PORT = Number.parseInt(process.env.INTERNAL_GATEWAY_PORT ?? "18789", 10);
@@ -425,6 +431,8 @@ function runCmd(cmd, args, opts = {}) {
       ...opts,
       env: {
         ...process.env,
+        OPENCLAW_STATE_DIR: STATE_DIR,
+        OPENCLAW_WORKSPACE_DIR: WORKSPACE_DIR,
         CLAWDBOT_STATE_DIR: STATE_DIR,
         CLAWDBOT_WORKSPACE_DIR: WORKSPACE_DIR,
       },
