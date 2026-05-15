@@ -597,6 +597,11 @@ app.post("/setup/api/pairing/approve", requireSetupAuth, async (req, res) => {
   return res.status(r.code === 0 ? 200 : 500).json({ ok: r.code === 0, output: r.output });
 });
 
+app.post("/setup/api/fix", requireSetupAuth, async (_req, res) => {
+  const r = await runCmd(CLAWDBOT_NODE, clawArgs(["doctor", "--fix"]));
+  res.status(r.code === 0 ? 200 : 500).type("text/plain").send(r.output || "done");
+});
+
 app.post("/setup/api/reset", requireSetupAuth, async (_req, res) => {
   // Minimal reset: delete the config file so /setup can rerun.
   // Keep credentials/sessions/workspace by default.
