@@ -80,6 +80,7 @@ const OPENCLAW_ENTRY = process.env.OPENCLAW_ENTRY?.trim() || "/openclaw/dist/ent
 const OPENCLAW_NODE = process.env.OPENCLAW_NODE?.trim() || "node";
 
 function clawArgs(args) {
+  if (!OPENCLAW_ENTRY) return args;
   return [OPENCLAW_ENTRY, ...args];
 }
 

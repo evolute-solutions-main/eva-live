@@ -15,3 +15,8 @@ requiredMountPath = "/data"
 # can cause domain routing mismatches.
 OPENCLAW_STATE_DIR = "/data/.openclaw"
 OPENCLAW_WORKSPACE_DIR = "/data/workspace"
+# Railway auto-generates this secret on first deploy. Find it in Railway → Variables.
+# Required to access the /setup wizard.
+SETUP_PASSWORD = "${{secret()}}"
+# Pin to a specific openclaw version (e.g. 2026.5.12) or leave as "latest".
+OPENCLAW_VERSION = "latest"
