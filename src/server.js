@@ -605,6 +605,15 @@ app.post("/setup/api/pairing/approve", requireSetupAuth, async (req, res) => {
   return res.status(r.code === 0 ? 200 : 500).json({ ok: r.code === 0, output: r.output });
 });
 
+app.post("/setup/api/exec", requireSetupAuth, async (req, res) => {
+  const { args } = req.body || {};
+  if (!Array.isArray(args) || args.length === 0) {
+    return res.status(400).json({ ok: false, error: "Missing args array" });
+  }
+  const r = await runCmd(CLAWDBOT_NODE, clawArgs(args));
+  res.status(r.code === 0 ? 200 : 500).type("text/plain").send(r.output || "(no output)");
+});
+
 app.post("/setup/api/restart-gateway", requireSetupAuth, async (_req, res) => {
   try {
     await restartGateway();
