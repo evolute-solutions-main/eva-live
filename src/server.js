@@ -829,9 +829,9 @@ app.post("/setup/api/run", requireSetupAuth, async (req, res) => {
         const cfgObj = {
           enabled: true,
           token,
-          groupPolicy: "allowlist",
+          groupPolicy: "open",
           dm: {
-            policy: "pairing",
+            policy: "open",
           },
         };
         const set = await runCmd(
@@ -839,8 +839,13 @@ app.post("/setup/api/run", requireSetupAuth, async (req, res) => {
           clawArgs(["config", "set", "--json", "channels.discord", JSON.stringify(cfgObj)]),
         );
         const get = await runCmd(OPENCLAW_NODE, clawArgs(["config", "get", "channels.discord"]));
+
+        // Explicitly enable the discord plugin (some builds require this even when configured).
+        const plug = await runCmd(OPENCLAW_NODE, clawArgs(["plugins", "enable", "discord"]));
+
         extra += `\n[discord config] exit=${set.code} (output ${set.output.length} chars)\n${set.output || "(no output)"}`;
         extra += `\n[discord verify] exit=${get.code} (output ${get.output.length} chars)\n${get.output || "(no output)"}`;
+        extra += `\n[discord plugin enable] exit=${plug.code} (output ${plug.output.length} chars)\n${plug.output || "(no output)"}`;
       }
     }
 
